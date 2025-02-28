@@ -9,6 +9,9 @@ public class PlayerMovement : MonoBehaviour
     public float speed;
     public float jumpForce;
     public CollectableManager cm;
+    [SerializeField] private Rigidbody2D rb;
+    private float horizontal;
+    public bool isGrounded;
     // Start is called before the first frame update
     void Start()
     {
@@ -23,12 +26,16 @@ public class PlayerMovement : MonoBehaviour
 
         transform.Translate(direction * speed * Time.deltaTime);
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
-            GetComponent<Rigidbody2D>().AddForce(new Vector2(0, jumpForce * Time.deltaTime));
+            GetComponent<Rigidbody2D>().AddForce(new Vector2(0, jumpForce));
         }
     }
 
+    private void FixedUpdate()
+    {
+        rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
+    }
     void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("Flower"))
@@ -38,5 +45,20 @@ public class PlayerMovement : MonoBehaviour
 
         }
 
+    }
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isGrounded = true;
+        }
+    }
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isGrounded = false;
+        }
     }
 }
